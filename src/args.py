@@ -98,7 +98,7 @@ def parse_arguments():
         default='/gscratch/efml/gamaga/.cache/open_clip',
         help='Directory for caching models from OpenCLIP'
     )
-    parsed_args = parser.parse_args()
+    parsed_args = parser.parse_args(args=[])
     parsed_args.device = "cuda" if torch.cuda.is_available() else "cpu"
     
     if parsed_args.load is not None and len(parsed_args.load) == 1:
