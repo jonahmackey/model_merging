@@ -1,5 +1,6 @@
 import os
 import time
+import tqdm
 
 import torch
 
@@ -7,7 +8,7 @@ from src.args import parse_arguments
 from src.datasets.common import get_dataloader, maybe_dictionarize
 from src.datasets.registry import get_dataset
 from src.eval import evaluate
-from src.modeling import ImageEncoder, ImageClassifier, MultiHeadImageClassifier
+from src.modeling import ImageEncoder, ImageClassifier
 from src.utils import cosine_lr, LabelSmoothing
 from src.heads import get_classification_head
 
@@ -136,15 +137,15 @@ def finetune_ls(image_encoder, dataset_name, args):
 
     dataset = get_dataset(
         train_dataset,
-        model.train_preprocess,
+        model.val_preprocess,
         location=args.data_location,
         batch_size=args.batch_size
     )
     num_batches = len(dataset.train_loader)
 
-    devices = list(range(torch.cuda.device_count()))
-    print('Using devices', devices)
-    model = torch.nn.DataParallel(model, device_ids=devices)
+    # devices = list(range(torch.cuda.device_count()))
+    # print('Using devices', devices)
+    # model = torch.nn.DataParallel(model, device_ids=devices)
     
     if args.ls > 0:
         loss_fn = LabelSmoothing(args.ls)
@@ -163,7 +164,7 @@ def finetune_ls(image_encoder, dataset_name, args):
         data_loader = get_dataloader(
             dataset, is_train=True, args=args, image_encoder=None)
 
-        for i, batch in enumerate(data_loader):
+        for i, batch in enumerate(tqdm.tqdm(data_loader)):
             start_time = time.time()
             
             step = i + epoch * num_batches
