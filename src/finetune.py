@@ -117,11 +117,11 @@ def finetune(args):
         return zs_path, ft_path
             
 
-def finetune_ls(image_encoder, args):
+def finetune_ls(image_encoder, dataset_name, args):
     train_dataset = args.train_dataset
     ckpdir = os.path.join(args.save, train_dataset)
 
-    classification_head = get_classification_head(args, train_dataset)
+    classification_head = get_classification_head(args, dataset_name)
     model = ImageClassifier(image_encoder, classification_head)
 
     # freeze parameters
