@@ -199,7 +199,7 @@ def finetune_ls(image_encoder, dataset_name, args):
             if step % print_every == 0:
                 percent_complete = 100 * i / len(data_loader)
                 print(
-                    f"Train Epoch: {epoch} [{percent_complete:.0f}% {i}/{len(dataset) // args.batch_size}]\t"
+                    f"Train Epoch: {epoch} [{percent_complete:.0f}% {i}/{num_batches}]\t"
                     f"Loss: {loss.item():.6f}\tData (t) {data_time:.3f}\tBatch (t) {batch_time:.3f}", flush=True
                 )
 
