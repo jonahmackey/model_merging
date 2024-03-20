@@ -3,6 +3,8 @@ import json
 import tqdm
 
 import torch
+from torchvision import datasets
+from torch.utils.data import DataLoader
 import numpy as np
 
 from src import utils
@@ -78,3 +80,38 @@ def evaluate(image_encoder, args):
         print('Results not saved (to do so, use --results_db to specify a path).')
 
     return info
+
+
+def eval_dtd(image_encoder, args):
+    classification_head = get_classification_head(args, 'DTD')
+    model = ImageClassifier(image_encoder, classification_head)
+
+    model.eval()
+
+    dataset = datasets.DTD(root='../data',
+                           transform=model.val_preprocess,
+                           download=True,
+                           split='test')
+    dataloader = DataLoader(dataset, batch_size=args.batch_size)
+    device = args.device
+
+    with torch.no_grad():
+        top1, correct, n = 0., 0., 0.
+        for i, data in enumerate(tqdm.tqdm(dataloader)):
+            x = data[0].to(device)
+            y = data[1].to(device)
+
+            logits = utils.get_logits(x, model)
+
+            pred = logits.argmax(dim=1, keepdim=True).to(device)
+
+            correct += pred.eq(y.view_as(pred)).sum().item()
+
+            n += y.size(0)
+
+        top1 = correct / n
+
+    metrics = {'top1': top1}
+    print(f'Done evaluating on DTD. Accuracy: {100*top1:.2f}%')
+
+    return metrics

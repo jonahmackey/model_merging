@@ -7,7 +7,7 @@ import torch
 from src.args import parse_arguments
 from src.datasets.common import get_dataloader, maybe_dictionarize
 from src.datasets.registry import get_dataset
-from src.eval import eval_single_dataset, evaluate
+from src.eval import eval_single_dataset, evaluate, eval_dtd
 from src.modeling import ImageEncoder, ImageClassifier
 from src.utils import cosine_lr, LabelSmoothing
 from src.heads import get_classification_head
@@ -192,7 +192,11 @@ def finetune_ls(image_encoder, dataset_name, args):
 
     # Evaluate
     image_encoder = model.image_encoder
-    accuracy = 100 * eval_single_dataset(image_encoder, dataset_name, args)['top1']
+    
+    if dataset_name == 'DTD':
+        eval_dtd(image_encoder, args)['top1']
+    else:
+        eval_single_dataset(image_encoder, dataset_name, args)['top1']
 
     if args.save is not None:
         zs_path = os.path.join(ckpdir, 'zeroshot.pt')  
