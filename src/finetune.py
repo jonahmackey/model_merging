@@ -3,6 +3,8 @@ import time
 import tqdm
 
 import torch
+from torchvision import datasets as tdatasets
+from torch.utils.data import DataLoader
 
 from src.args import parse_arguments
 from src.datasets.common import get_dataloader, maybe_dictionarize
@@ -135,12 +137,18 @@ def finetune_ls(image_encoder, dataset_name, args):
 
     print_every = 100
 
-    dataset = get_dataset(
-        train_dataset,
-        model.val_preprocess,
-        location=args.data_location,
-        batch_size=args.batch_size
-    )
+    if dataset_name == 'DTD':
+        dataset = tdatasets.DTD(root=args.data_location,
+                           transform=model.val_preprocess,
+                           download=True,
+                           split='train')
+    else:
+        dataset = get_dataset(
+            train_dataset,
+            model.val_preprocess,
+            location=args.data_location,
+            batch_size=args.batch_size
+        )
     num_batches = len(dataset.train_loader)
     
     if args.ls > 0:
@@ -157,8 +165,12 @@ def finetune_ls(image_encoder, dataset_name, args):
     for epoch in range(args.epochs):
         model = model.cuda()
         model.train()
-        data_loader = get_dataloader(
-            dataset, is_train=True, args=args, image_encoder=None)
+        
+        if dataset_name == 'DTD':
+            data_loader = DataLoader(dataset, batch_size=args.batch_size)
+        else:
+            data_loader = get_dataloader(
+                dataset, is_train=True, args=args, image_encoder=None)
 
         for i, batch in enumerate(tqdm.tqdm(data_loader)):
             start_time = time.time()

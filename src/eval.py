@@ -3,7 +3,7 @@ import json
 import tqdm
 
 import torch
-from torchvision import datasets
+from torchvision import datasets as tdatasets
 from torch.utils.data import DataLoader
 import numpy as np
 
@@ -88,7 +88,7 @@ def eval_dtd(image_encoder, args):
 
     model.eval()
 
-    dataset = datasets.DTD(root='../data',
+    dataset = tdatasets.DTD(root='../data',
                            transform=model.val_preprocess,
                            download=True,
                            split='test')
