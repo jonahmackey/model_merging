@@ -142,6 +142,7 @@ def finetune_ls(image_encoder, dataset_name, args):
                            transform=model.val_preprocess,
                            download=True,
                            split='train')
+        num_batches = len(dataset) // args.batch_size
     else:
         dataset = get_dataset(
             train_dataset,
@@ -149,7 +150,7 @@ def finetune_ls(image_encoder, dataset_name, args):
             location=args.data_location,
             batch_size=args.batch_size
         )
-    num_batches = len(dataset.train_loader)
+        num_batches = len(dataset.train_loader)
     
     if args.ls > 0:
         loss_fn = LabelSmoothing(args.ls)
